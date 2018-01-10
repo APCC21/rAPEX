@@ -1,0 +1,102 @@
+rapex를 이용한 APEX 모델링
+========================================================
+author: APEC기후센터 조재필 선임연구원
+date: 2016. 06. 26.
+
+#고민되어야할 내용들
+
+* 한반도 적용시 지점의 좌표만을 입력으로 모형 세팅이 되어야 함
+    + GIS 파일들로 부터 지점의 토양, 영농, 기후 자료를 가져 올 수 있어야 함
+    + GISDB 폴더를 만들어 자료 정리
+    + Soil 데이터를 R 패키지의 데이터로 제공할 수 있는 방법은 없는가?
+  
+* Management를 시나리오에 따라서 쉽게 적용할 수 있어야 하고 결과를 쉽게 비교분석 할 수 있어야 함
+    + Mgt를 쉽게 입력할 수 있는 방법(지역별 Default, 관측기반 사용자 정의, 시나리오)
+    + 시나리오별 폴더 생성
+    
+* Auto-Calibration을 쉽게 할 수 있는 방법은?
+    + 보정에 사용되는 매개변수 리스트 필요
+    + 사용자가 원하는 매개변수를 선정하는 과정 필요
+    + 결과 파일을 정리하는 과정 필요
+    + 필요한 관측자료들은 어떤 것들이 있는가? (유량, 수질, 생산량)
+    
+* 논에서 필지와 관개지구 모델링에서 고려되어야 할 내용들은 무엇이 있는가?
+    + 용수 지구별 논을 고려하는 경우 필지와 비교하여 고려되어야 할 항목은?
+    + RRI의 저수지 모델링과 연계할 수 있는 방법은?
+    + 자동 및 매뉴얼 application 적용 방법은 (농약, 비료, 관개용수)
+    
+* 기후정보 생성 패키지와 연동될 수 있어야 함
+    + 기후변화 시나리오 그리드 정보와 연동
+    + 계절예측 정보의 예측자료와 연동 (웜업 기간 필요)
+
+* 패키지(rAPEX) 설치시 필요한 DB등이 자동으로 설정되어야 함 (6/25:CJP)
+    + Set.Working.Environment 함수추가: 필요한 폴더를 생성후 웹페이지에서 필요 데이터 폴더로 다운로드, 전역변수 리스트 생성 [6/26:CJP]
+
+* APEX모형의 검증에 사용된 관측자료들(수질, 생산량, ...)은 잘 정리되어 데이터셋으로 제공되어야 함 (6/25:CJP)
+
+
+* 향후 Grid 기반의 기후자료 활용을 고려할 수 있어야 함 (6/25:CJP)
+
+* 향후 국가별 확장을 고려할 수 있어야 함 (6/25:CJP)
+
+#APEX0806 물발자국 분석
+* APEX의 밭지역 적용을 위한 확장 고려: WINAPEX.SUB을 향후 토지이용(논/밭)에 따라 다른 템플릿을 사용할 수 있도록 Paddy.SUB 및 Upland.SUB로 구분하여 사용하는 것이 좋을 것 같음 (6/25:CJP)
+    + 전역변수 lutype ("Paddy" 또는 "Upland") 추가 [6/26:CJP]
+    + plot의 위경도 좌표에서 1m 정도의 정확도를 갖으려면 소숫점 몇째자리까지 필요한가? --> 우선은 4자리로 설정
+* APEX의 밭지역 적용을 위한 확장 고려: WINAPEX.SIT을 향후 토지이용(논/밭)에 따라 다른 템플릿을 사용할 수 있도록 Paddy.SIT 및 Upland.SIT로 구분하여 사용하는 것이 좋을 것 같음 (6/25:CJP)
+
+* Edit.APEX.Input을 파일별로 분리하는 것이 좋을 것 같음(6/25:CJP)
+* Edit.APEX.Input에서 cat 대신 sprintf를 사용하는 것이 코드를 더 짧게함 (6/25:CJP)
+
+    
+#APEX0806 구동을 위해 꼭 필요한 파일들은?
+* 아래 파일들은 뭐지?
+    + FPARM       PARMS.DAT
+    + FMLRN    MLRN2110.DAT
+
+##APEX사용자 설명서 내용
+* 유역은 토양 토지 사용 지형 등이 동질한 하위영역 (<4,000개)으로 구분될 수 있다
+* SITE.DAT --> Winapex.sit : Site는 무슨 개념이지? 동일한 2개 리스트가 있는데...
+* APEXCONT.DAT 파일은 모의 년수 모의 기간 출력물 인쇄 사양 날씨 생성기 기능 등과 같이 전체 모의에 걸쳐 일정한 값을 가지는 변수들을 포함한다 이 파일은 이름을 변경할 수 없다.
+* WIND.DAT --> 1.WND ~ 2.WND 2개로 구성
+* APEX모의에 사용되는 장소는 완충대 혹은 여과대를 포함하든 포함하지 않든 다양한 종류의 하위영역을 포함. Subarea의 개념은? 사용자는 SOILCOM.DAT 의 토양 리스트 및 OPSCCOM.DAT 의 작업 스케줄에 포함된
+리스트에서 주요 토양 및 작업 스케줄을 지정해야 한다. SUBA.DAT --> Winapex.sub 1개만을 포함하고 잇음.
+* WDLST.DAT와 WPM1.DAT는 기상관측소 리스트로 일단위, 월단위의 자료 리스트임.
+
+1. APEX-Paddy_Editor.xlsm으로 입력자료 생성
+2. APEXRUN.DAT의 아래 정보를 대상 필지에 맞게 입력
+    + IWPN	32	Monthly weather station number
+    + IWND	1	Wind Station number
+    
+3. APEXCONT.DAT의 아래 정보를 변경
+    + NBYR	30	Number of  Years for Simulation Duration (cols. 1-4)
+    + IYR	1983	Beginning Year of Simulation (cols. 5-8)
+    + NGN	24	Input Code for Weather Variables (cols. 21-24), 사용자가 지정한 외부 파일에서 한 개 이상의 일일 기상 변수를 읽을 수 있도록 허용한다 기상 입력코드는 어떠한 변수를 읽어 들일지 구체적으로 명시한다.
+(1: 강수량, 2:최대 및 최저 온도, 3: 태양 복사 에너지, 4: 평균 풍속 에너지, 5: 평균 상대 습도)
+    + CO2	380	Carbon dioxide concentration in atmosphere (cols. 9-16)
+4. Winapex.sub 파일의 아래 내용을 수정한다.
+    + INPS	Soil number from soil list (SOIL0806.DAT)
+    + IOPS	Operation schedule from operation schedule list (OPSC0806.DAT)
+    + IWTH	Input daily weather station number
+    + YCT	Y Coordinate(Latitude) of subarea centroid. Negative south. (Range: -90 to 90)
+    + XCT	X Coordinate(Longitude) of subarea centroid. Negative west. (Range: -180 to 180)
+    
+**엑셀 파일에 수정이 필요한 내용이라 생각되는 경우 표시할 것**
+1. 입력파일들 중에서 *.dat 파일들은 리스트 파일들이 대부분이고
+parms.dat은 경험식의 상수들을 가지고 있으며 전문적인 지식없이 수정해서는 안 되는 값들이다.
+PRINT0806.DAT은 출력 파일들을 컨트롤하기 위한 입력파일로 변동없이 고정하여 사용하면 된다.
+SITE.DAT의 경우는 사이트마다 다른 입력파일이 만들어져야 하지만 2개만의 리스트를 가지고 있으며 WinAPEX에서 Site 입력파일(*.SIT)이 생성되는 듯 하다.
+SUBA.DAT의 경우도 SITE.DAT과 마찬가지로 WinAPEX에서 입력파일(*.SUB)가 만들어 지는 듯 하다.
+
+APEXCON.DAT, APEXDIM.DAT, APEXRUN.DAT, MLRN2110.DAT 등이 전체적인 모형 구동을 컨트롤하는데 필요한 파일들이고 (MLRN2110.DAT은 뭐지?)
+
+실제적인 입력파일들은 *.dly, *.SIT, *.sol, *.WP1, *WND, *.ops, *.sub 파일들이다. 
+
+#APEX자동 검보정
+
+
+
+
+
+
+
